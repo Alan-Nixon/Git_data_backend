@@ -37,6 +37,7 @@ export type gitType = {
 }
 
 export type userGitEssential = {
+    _id:string
     login: string
     id: string
     node_id: string

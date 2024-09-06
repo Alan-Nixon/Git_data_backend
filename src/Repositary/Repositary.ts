@@ -77,18 +77,30 @@ export const saveRepo = async (repo: repoType[] | []) => {
 export const getFollowersFromDb = async (ownerId: string, ownerName: string) => {
     try {
         const data = await userModel.findById(ownerId);
-        console.log(data?.followersId)
+
         if (data?.followersId.length === 0) {
-            getAndInsertFollowers(data.folowersUrl)
+
+            const insertedUsers = await getAndInsertFollowers(data.folowersUrl)
+            if (insertedUsers && insertedUsers.length > 0) {
+                data.followersId = insertedUsers.map(item => item?._id + "")
+                data.followers = insertedUsers.length + "" || data.followers
+                await data.save()
+            }
+            return insertedUsers || []
         } else {
-            // if it is in dabse
-            const fol = data?.followersId.map(async item => await userModel.findById(item))
-            console.log(fol)
-            // const followers = await Promise.all(fol)
+            return await Promise.all(data?.followersId?.map(async (item) => await userModel.findById(item)) || []);
         }
     } catch (error: any) {
         console.log(error.message ?? "Internal server error")
         return null
+    }
+}
+
+export const getFollowerLinkByUserId = async (userId:string) => {
+    try {
+        return (await userModel.findById(userId))?.folowersUrl ||  ""
+    } catch (error:any) {
+        return  ""
     }
 }
 
@@ -99,12 +111,8 @@ export const getFollowersFromDb = async (ownerId: string, ownerName: string) => 
 const getAndInsertFollowers = async (fetchUrl: string) => {
     try {
         const followers = await getDataFromUrl(fetchUrl);
-        const data = await Promise.all(followers.map(async (item: userGitEssential) => ({
-            userDetails: item,
-            repos: await getDataFromUrl(item.followers_url)
-        })))
-        const response = await Promise.all(data.map(async (item) => insertData(item.userDetails.login, item)))
-        console.log(response)
+        const data = await Promise.all(followers.map(async (item: userGitEssential) => ({ userDetails: item, repos: await getDataFromUrl(item.followers_url) })))
+        return await Promise.all(data.map(async (item) => (await insertData(item.userDetails.login, item))?.data?.userRepo));
     } catch (error: any) {
         console.log(error.message ?? "Internal server error")
     }

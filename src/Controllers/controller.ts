@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
-import { getDataFromDb, getFollowersFromDb, getGitFrom, getUserRepo, saveRepo, saveToDb } from '../Repositary/Repositary'
-import { dataGitInterface, repoImpType } from '../Interfaces_types/interface-types';
+import { getDataFromDb, getDataFromUrl, getFollowerLinkByUserId, getFollowersFromDb, getGitFrom, getUserRepo, saveRepo, saveToDb } from '../Repositary/Repositary'
+import { dataGitInterface, repoImpType, userGitEssential } from '../Interfaces_types/interface-types';
 
 
 export const getGit = async (req: Request, res: Response) => {
@@ -28,14 +28,24 @@ export const getFollowersOfUser = async (req: Request, res: Response) => {
     try {
         const { ownerId, ownerName } = req.query
         const followers = await getFollowersFromDb(ownerId + "", ownerName + "");
-
-        res.status(200).json({ status: false, message: "success", data: null })
+        res.status(200).json({ status: false, message: "success", data: followers || [] })
     } catch (error: any) {
         console.log(error?.message ?? "Internal error occured")
         res.status(201).json({ status: false, message: error?.message ?? "Internal error occured", data: null })
     }
 }
 
+
+export const isMutual = async (req: Request, res: Response) => {
+    try {
+        const query = JSON.parse(req.query.data as string)
+        const mutualArray = await Promise.all(query.followerIds.map(async (item: string) => await updateFollowers(item, query.userName)))
+        res.status(200).json({ status: true, message: "success", data: mutualArray })
+    } catch (error: any) {
+        console.log(error?.message ?? "Internal error occured")
+        res.status(201).json({ status: false, message: error?.message ?? "Internal error occured", data: null })
+    }
+}
 
 
 //////////////////// helper functions ///////////////////// 
@@ -83,5 +93,15 @@ export async function insertData(name: string, dataGit: dataGitInterface) {
         }
     } else {
         return { status: false, data: null, message: "no such git repositary" }
+    }
+}
+
+const updateFollowers = async (followerId: string, userName: string) => {
+    try {
+        const followerLink = await getFollowerLinkByUserId(followerId)
+        const followers = await getDataFromUrl(followerLink);
+        return !!followers.find((item: userGitEssential) => item.login === userName)
+    } catch (error: any) {
+        console.log(error)
     }
 }
