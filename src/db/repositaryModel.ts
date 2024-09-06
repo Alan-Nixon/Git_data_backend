@@ -1,30 +1,5 @@
 import mongoose from 'mongoose'
 
-export type repoType = {
-    repoName: string,
-    ownerId: string,
-    ownerName: string
-    repoUrl: string,
-    description: string,
-    forked: boolean,
-    visibility: string,
-    defaultBranch: string
-}
-
-export type repoImpType = {
-    html_url: string;
-    description: string;
-    fork: any;
-    visibility: string;
-    default_branch: string;
-    name: string;
-    // name: string;
-    // html_url: string;
-    // description?: string; 
-    // fork: boolean;
-    // visibility?: string;
-    // default_branch?: string; 
-};
 
 
 interface repoInterface extends Document {

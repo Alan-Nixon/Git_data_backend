@@ -1,24 +1,5 @@
 import mongoose, { Document } from 'mongoose'
 
-export type gitType = {
-    Name: string,
-    id: string,
-    nodeId: string
-    profileImg: string
-    followers: number
-    bio: string,
-    repoUrl: string
-}
-
-export type userGitEssential = {
-    login: string
-    id: string
-    node_id: string
-    avatar_url: string
-    followers: number
-    bio: string
-    html_url: string
-}
 
 export interface gitDataType extends Document {
     Name: string,
@@ -28,6 +9,13 @@ export interface gitDataType extends Document {
     followers: string,
     bio: string,
     repoUrl: string,
+    folowersUrl: string,
+    followingUrl: string
+    gistsUrl: string
+    location: string
+    blog: string,
+    createdAt: string
+    followersId: string[] | []
 }
 
 const gitDataSchema = new mongoose.Schema<gitDataType>({
@@ -58,11 +46,39 @@ const gitDataSchema = new mongoose.Schema<gitDataType>({
     repoUrl: {
         type: String,
         required: true
+    },
+    folowersUrl: {
+        type: String,
+        required: true
+    },
+    followingUrl: {
+        type: String,
+        required: true
+    },
+    gistsUrl: {
+        type: String,
+        required: true
+    },
+    location: {
+        type: String,
+        required: true
+    },
+    blog: {
+        type: String,
+        required: true
+    },
+    createdAt: {
+        type: String,
+        required: true
+    },
+    followersId: {
+        type: [String],
+        default: [],
+        required: true
     }
-
 })
 
-export const GitSchema = mongoose.model("gitSchema", gitDataSchema)
+export const userModel = mongoose.model("gitSchema", gitDataSchema)
 
 // {
 //     login: 'Alan-Nixon',
