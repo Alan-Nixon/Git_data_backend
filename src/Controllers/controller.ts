@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { getDataFromDb, getDataFromUrl, getFollowerLinkByUserId, getFollowersFromDb, getGitFrom, getUserRepo, saveRepo, saveToDb } from '../Repositary/Repositary'
+import { deleteRepoGitByUserId, getDataFromDb, getDataFromUrl, getFollowerLinkByUserId, getFollowersFromDb, getGitFrom, getUserRepo, saveRepo, saveToDb, updateUserDetails } from '../Repositary/Repositary'
 import { dataGitInterface, repoImpType, userGitEssential } from '../Interfaces_types/interface-types';
 
 
@@ -47,6 +47,26 @@ export const isMutual = async (req: Request, res: Response) => {
     }
 }
 
+export const deleteRepoGit = async (req: Request, res: Response) => {
+    try {
+        await deleteRepoGitByUserId(req.query.userId + "")
+        res.status(200).json({ status: true, message: "success", data: null })
+    } catch (error: any) {
+        console.log(error?.message ?? "Internal error occured")
+        res.status(201).json({ status: false, message: error?.message ?? "Internal error occured", data: null })
+    }
+}
+
+export const editDetails = async (req: Request, res: Response) => {
+    try {
+        const data = await updateUserDetails(req.body)
+        console.log(data)
+        res.status(200).json({ status: true, message: "success", data })
+    } catch (error: any) {
+        console.log(error?.message ?? "Internal error occured")
+        res.status(201).json({ status: false, message: error?.message ?? "Internal error occured", data: null })
+    }
+}
 
 //////////////////// helper functions ///////////////////// 
 

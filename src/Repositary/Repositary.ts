@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { userModel } from '../db/gitData';
 import { repoModel } from '../db/repositaryModel';
-import { gitType, repoType, userGitEssential } from '../Interfaces_types/interface-types';
+import { editUserType, gitType, repoType, userGitEssential } from '../Interfaces_types/interface-types';
 import { insertData } from '../Controllers/controller';
 
 
@@ -28,7 +28,15 @@ export const getDataFromUrl = async (url: string) => {
     }
 }
 
-
+export const deleteRepoGitByUserId = async (userId: string) => {
+    try {
+        await userModel.findByIdAndDelete(userId)
+        await repoModel.deleteMany({ ownerId: userId })
+    } catch (error: any) {
+        console.log(error.message ?? "Internal server error")
+        return []
+    }
+}
 
 export const getDataFromDb = async (name: string) => {
     try {
@@ -96,11 +104,29 @@ export const getFollowersFromDb = async (ownerId: string, ownerName: string) => 
     }
 }
 
-export const getFollowerLinkByUserId = async (userId:string) => {
+export const getFollowerLinkByUserId = async (userId: string) => {
     try {
-        return (await userModel.findById(userId))?.folowersUrl ||  ""
-    } catch (error:any) {
-        return  ""
+        return (await userModel.findById(userId))?.folowersUrl || ""
+    } catch (error: any) {
+        return ""
+    }
+}
+
+export const updateUserDetails = async(data: editUserType) => {
+    try {
+        console.log(data)
+        const userData = await userModel.findById(data._id);
+        if(userData) {
+            userData.location = data.location === "undefined" ?  userData.location : data.location
+            userData.bio = data.bio === "undefined" ?  userData.bio : data.bio
+            userData.blog = data.blog === "undefined" ?  userData.blog : data.blog
+            await userData.save();
+            return userData
+        }
+        return null
+    } catch (error: any) {
+        console.log(error)
+        return null
     }
 }
 

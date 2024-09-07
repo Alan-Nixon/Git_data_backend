@@ -58,3 +58,10 @@ export interface dataGitInterface {
     userDetails: null | userGitEssential,
     repos: repoType[] | null
 }
+
+export type editUserType = {
+    _id: string,
+    location: string,
+    bio: string,
+    blog: string
+}
